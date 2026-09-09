@@ -5,7 +5,7 @@ from pages.base_page import BasePage
 
 class MainPage(BasePage):
     """
-    הכותרת העליונה והניווט בין ארבע הלשוניות.
+    הכותרת העליונה והניווט בין חמש הלשוניות.
     """
 
     def __init__(self, page: Page):

@@ -34,8 +34,10 @@ def test_full_vocal_test_produces_results_and_opens_program(app):
     assert "סולם" in vocal_test_page.get_step_text(), \
         "מונה הסולמות לא מוצג: " + vocal_test_page.get_step_text()
 
-    # נותנים לסולם הראשון להיקלט, ואז עוצרים
-    vocal_test_page.wait(14000)
+    # נותנים לסולם הראשון להיקלט, ואז עוצרים.
+    # חלון ההקלטה של הסולם הראשון הוארך (זמן חסד למי שמתחיל לשיר לאט),
+    # ולכן ההמתנה כאן ארוכה בהתאם.
+    vocal_test_page.wait(16500)
     vocal_test_page.stop_test()
 
     app.wait_for_selector("#stageResults:not([hidden])", timeout=15000)

@@ -120,3 +120,41 @@ def test_bug04_tabs_and_panels_are_linked_for_screen_readers(app):
         assert panel.count() == 1, "העמוד " + panel_id + " לא נמצא"
         assert panel.get_attribute("aria-labelledby") == tab.get_attribute("id"), \
             "העמוד " + panel_id + " לא מקושר בחזרה ללשונית שלו"
+
+
+def test_bug05_test_stops_when_no_voice_is_picked_up(page):
+    """
+    רגרסיה ל־BUG-05: כשהמיקרופון לא קולט כלום,
+    המבדק נעצר מיד, מציג אזהרה, ולא ממציא תוצאה.
+
+    כדי לבדוק את זה מחליפים את המיקרופון בזרם שקט לחלוטין.
+    """
+    from conftest import APP_URL
+
+    # מיקרופון מדומה שלא מפיק שום צליל
+    page.add_init_script(
+        "navigator.mediaDevices.getUserMedia = async () => {"
+        "  const ctx = new AudioContext();"
+        "  return ctx.createMediaStreamDestination().stream;"
+        "};"
+    )
+
+    page.goto(APP_URL)
+    page.evaluate("localStorage.clear()")
+    page.reload()
+    page.wait_for_selector("nav.tabs button")
+
+    vocal_test_page = VocalTestPage(page)
+    vocal_test_page.choose_gender("male")
+    vocal_test_page.start_test()
+
+    # מחכים מספיק זמן לסולם הראשון ולזיהוי השקט
+    page.wait_for_timeout(14000)
+
+    assert vocal_test_page.is_visible(vocal_test_page.stage_intro), \
+        "המבדק לא חזר למסך הפתיחה למרות שלא נקלט קול"
+    assert not vocal_test_page.is_visible(vocal_test_page.stage_results), \
+        "הוצגו תוצאות למרות שלא נקלט שום קול"
+
+    hint = vocal_test_page.get_hint_text()
+    assert "לא נקלט" in hint, "לא הוצגה אזהרה על היעדר קליטה: " + hint

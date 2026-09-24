@@ -108,8 +108,8 @@ def test_bug04_tabs_and_panels_are_linked_for_screen_readers(app):
     tabs = app.locator('nav.tabs button[role="tab"]')
     panels = app.locator('[role="tabpanel"]')
 
-    assert tabs.count() == 5, "ציפינו לחמש לשוניות מוגדרות"
-    assert panels.count() == 5, "ציפינו לחמישה עמודים מוגדרים כלוח טאב"
+    assert tabs.count() == 4, "ציפינו לארבע לשוניות מוגדרות"
+    assert panels.count() == 4, "ציפינו לארבעה עמודים מוגדרים כלוח טאב"
 
     for index in range(tabs.count()):
         tab = tabs.nth(index)

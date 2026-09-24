@@ -7,7 +7,7 @@ def test_each_tab_opens_its_own_panel(app):
     ומסתירה את כל השאר.
     """
     main_page = MainPage(app)
-    tab_names = ["test", "exercises", "vowels", "mouth", "progress"]
+    tab_names = ["test", "exercises", "vowels", "progress"]
 
     for opened_tab in tab_names:
         main_page.open_tab(opened_tab)

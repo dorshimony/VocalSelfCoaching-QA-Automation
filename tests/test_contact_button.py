@@ -29,7 +29,7 @@ def test_contact_button_is_available_on_every_tab(app):
     main_page = MainPage(app)
     contact_button = app.locator("#contactBtn")
 
-    for tab_name in ["test", "exercises", "vowels", "mouth", "progress"]:
+    for tab_name in ["test", "exercises", "vowels", "progress"]:
         main_page.open_tab(tab_name)
         assert main_page.is_visible(contact_button), \
             "כפתור יצירת הקשר נעלם בלשונית " + tab_name

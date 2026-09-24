@@ -141,6 +141,7 @@ def test_bug05_test_stops_when_no_voice_is_picked_up(page):
 
     page.goto(APP_URL)
     page.evaluate("localStorage.clear()")
+    page.evaluate("localStorage.setItem('vsc_hero_seen_v1', '1')")
     page.reload()
     page.wait_for_selector("nav.tabs button")
 

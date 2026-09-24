@@ -36,11 +36,14 @@ def browser_context_args(browser_context_args):
 @pytest.fixture
 def app(page):
     """
-    פותח את האפליקציה ומנקה נתונים שמורים,
-    כדי שכל בדיקה תתחיל ממצב נקי.
+    פותח את האפליקציה ומנקה נתונים שמורים, כדי שכל בדיקה
+    תתחיל ממצב נקי — אבל אחרי מסך הפתיחה.
     """
     page.goto(APP_URL)
     page.evaluate("localStorage.clear()")
+    # מסך הפתיחה מוצג רק למבקר חדש ומסתיר את הלשוניות.
+    # רוב הבדיקות עוסקות בשאר האפליקציה, ולכן הן מתחילות אחריו.
+    page.evaluate("localStorage.setItem('vsc_hero_seen_v1', '1')")
     page.reload()
     page.wait_for_selector("nav.tabs button")
     return page

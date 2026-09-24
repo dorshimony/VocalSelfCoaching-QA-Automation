@@ -31,10 +31,10 @@ class ExercisesPage(BasePage):
         self.play_buttons = page.locator("#programGrid .ex-play")
         self.done_buttons = page.locator("#programGrid .ex-done")
 
-        # כל התרגילים
-        self.toggle_all_button = page.locator("#toggleAllBtn")
-        self.all_grid = page.locator("#allGrid")
-        self.all_cards = page.locator("#allGrid .ex-card")
+        # ההצצה לתרגילים שנפתחים בשיעור
+        self.peek_section = page.locator("#peekSection")
+        self.peek_items = page.locator("#peekList li")
+        self.peek_whatsapp = page.locator("#waPeekBtn")
 
     def choose_manual_verdict(self, verdict):
         self.page.locator('#manualRow .choice[data-verdict="' + verdict + '"]').click()
@@ -57,11 +57,11 @@ class ExercisesPage(BasePage):
     def is_first_exercise_marked_done(self):
         return self.done_buttons.first.is_disabled()
 
-    def toggle_all_exercises(self):
-        self.toggle_all_button.click()
-
     def select_reference_note(self, value):
         self.reference_note_select.select_option(value)
 
     def get_selected_reference_note(self):
         return self.reference_note_select.input_value()
+
+    def get_peek_titles(self):
+        return [text.strip() for text in self.peek_items.all_inner_texts()]

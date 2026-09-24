@@ -10,31 +10,62 @@ def decoded_message(link):
     return unquote(link.split("?text=", 1)[1])
 
 
-def test_first_visitor_sees_the_opening_screen(app):
+def fresh_visitor(page, app_url):
+    """מבקר חדש לגמרי: בלי שום נתון שמור."""
+    page.goto(app_url)
+    page.evaluate("localStorage.clear()")
+    page.reload()
+    page.wait_for_selector("#heroCard")
+    return LeadPage(page)
+
+
+def test_first_visitor_sees_one_screen_and_one_button(page):
     """
-    בדיקה 12: מי שמגיע בפעם הראשונה רואה מסך פתיחה קצר —
-    מה הוא מקבל, כפתור התחלה, ומי המורה.
+    בדיקה 12: מי שמגיע בפעם הראשונה רואה מסך פתיחה אחד —
+    מה הוא מקבל, כפתור התחלה, ומי המורה. הלשוניות מוסתרות
+    כדי שלא יתפזר.
     """
-    lead_page = LeadPage(app)
+    from conftest import APP_URL
+
+    lead_page = fresh_visitor(page, APP_URL)
 
     assert lead_page.is_visible(lead_page.hero), "מסך הפתיחה לא מוצג למבקר חדש"
     assert lead_page.is_visible(lead_page.hero_start_button), "כפתור ההתחלה לא מוצג"
     assert lead_page.get_text(lead_page.teacher_name) == "דור שמעוני"
     assert "פיתוח קול" in lead_page.get_text(lead_page.teacher_role)
 
+    assert not lead_page.is_visible(page.locator("nav.tabs")), \
+        "הלשוניות מוצגות כבר במסך הפתיחה"
 
-def test_opening_screen_disappears_after_starting(app):
+
+def test_the_teacher_photo_is_shown(page):
     """
-    בדיקה 12ב: אחרי לחיצה על ההתחלה מסך הפתיחה נעלם,
-    ולא חוזר גם אחרי רענון.
+    בדיקה 12ב: במסך הפתיחה מופיעה תמונה של המורה, ולא ראשי תיבות.
     """
-    lead_page = LeadPage(app)
+    from conftest import APP_URL
+
+    lead_page = fresh_visitor(page, APP_URL)
+    photo = page.locator("#heroCard img.dor-photo")
+
+    assert lead_page.is_visible(photo), "תמונת המורה לא מוצגת"
+    assert "דור שמעוני" in (photo.get_attribute("alt") or ""), "לתמונה אין תיאור נגיש"
+
+
+def test_opening_screen_disappears_after_starting(page):
+    """
+    בדיקה 12ג: אחרי לחיצה על ההתחלה מסך הפתיחה נעלם,
+    הלשוניות נחשפות, והמסך לא חוזר גם אחרי רענון.
+    """
+    from conftest import APP_URL
+
+    lead_page = fresh_visitor(page, APP_URL)
 
     lead_page.start_from_hero()
     assert not lead_page.is_visible(lead_page.hero), "מסך הפתיחה נשאר אחרי ההתחלה"
+    assert lead_page.is_visible(page.locator("nav.tabs")), "הלשוניות לא נחשפו אחרי ההתחלה"
 
     lead_page.reload()
-    app.wait_for_selector("nav.tabs button")
+    page.wait_for_selector("nav.tabs button")
     assert not lead_page.is_visible(lead_page.hero), "מסך הפתיחה חזר אחרי רענון"
 
 
@@ -59,6 +90,11 @@ def test_result_screen_offers_a_lesson_with_the_diagnosis_in_the_message(app):
     assert lead_page.is_visible(lead_page.result_cta), "לא הוצגה קריאה לפעולה אחרי האבחון"
     assert lead_page.get_text(lead_page.result_title), "לא הוצגה כותרת אבחון בשפה פשוטה"
     assert lead_page.get_text(lead_page.result_next), "לא הוסבר מה הצעד הבא"
+
+    gap = lead_page.get_text(app.locator("#resultCta .rc-gap"))
+    assert "בשיעור" in gap, "לא נאמר מה אי אפשר לדעת מהקלטה: " + gap
+    assert lead_page.is_visible(app.locator("#resultCta .first-lesson")), \
+        "לא הוסבר מה קורה בשיעור ראשון"
 
     link = lead_page.get_result_link()
     assert link.startswith(LeadPage.WHATSAPP_PREFIX), "הקישור לא מפנה למספר הנכון: " + link

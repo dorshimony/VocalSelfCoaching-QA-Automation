@@ -40,6 +40,7 @@ def open_mouth_page(page, app_url, mouth_open=0.30, mouth_width=0.42):
     page.add_init_script(FAKE_LANDMARKER)
     page.goto(app_url)
     page.evaluate("localStorage.clear()")
+    page.evaluate("localStorage.setItem('vsc_hero_seen_v1', '1')")
     page.reload()
     page.wait_for_selector("nav.tabs button")
     page.evaluate(
